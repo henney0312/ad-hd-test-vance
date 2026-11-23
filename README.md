@@ -1,21 +1,18 @@
-# 판정 불가 ADHD 테스트
+# ADHD 자가진단 테스트 (판정 불가)
 
-수업 '광고와 대중문화' 4팀 사회캠페인 웹페이지. 슬로건: 진단명은 유행어가 아니다.
+수업 '광고와 대중문화' 4팀 사회캠페인 웹페이지.
+Figma Make 시안(`[시안] ADHD 자가진단 테스트`)의 화면·문구·이미지·스타일을 GitHub Pages용 정적 사이트로 옮긴 것.
 
-## 구성
-- 표지(밈 테스트 형식) → 5문항 체크 → 결과 로딩 → **판정 불가** → ADHD 진단 기준·대체 표현 → 사후 설문 3문항 → 공유
-- 빌드 과정 없는 정적 사이트 (`index.html`, `style.css`, `app.js`, `config.js`)
+- 배포 주소: https://henney0312.github.io/ad-hd-test-vance/
+- 화면 흐름: 소개 → 5문항(밈 이미지) → 로딩 → 판정 불가 결과·정보 카드 → 인식 설문 4문항 → 실시간 통계 → 공유
+- 데스크탑(431px 이상): 화면 가운데 아이폰 프레임 형태로 표시 / 폰(430px 이하): 화면 전체 사용
 
-## 문구 수정
-- 테스트 문항, 설문 문항, 설문 저장 주소: `config.js`
-- 화면 문구: `index.html`
+## 파일
+- `index.html`, `styles.css`(원본 styles.css), `app.js`(원본 ADHDTest.tsx 이식), `assets/`(원본 이미지)
+- `config.js`: 설문 저장 주소
+- `docs/apps-script.gs`, `docs/google-sheet-setup.md`: 설문 저장·통계용 구글 시트 연결
 
 ## 로컬 확인
 ```
 python3 -m http.server 8000
 ```
-브라우저에서 http://localhost:8000 접속
-
-## 배포
-- GitHub Pages: 저장소 Settings → Pages → Source `Deploy from a branch`, Branch `main` / `(root)` → 저장. 약 1분 후 `https://<계정>.github.io/<저장소>/` 로 접속 가능
-- 설문 응답 저장: `docs/google-sheet-setup.md`
