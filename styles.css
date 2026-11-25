@@ -446,7 +446,7 @@ button.header-paw:hover { background: #dbe8ff; }
 
 /* 로딩 */
 .loading-cat { width: auto; height: auto; overflow: visible; border-radius: 0; }
-.loading-cat .cat { width: 180px; height: 240px; padding: 10px; animation: magic-bob 1.6s ease-in-out infinite; }
+.loading-cat .cat { width: 200px; height: 200px; padding: 10px; animation: magic-bob 1.6s ease-in-out infinite; }
 .loading h2 { font-size: 26px; line-height: 1.3; letter-spacing: 0; }
 @keyframes magic-bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
 
@@ -476,7 +476,7 @@ button.header-paw:hover { background: #dbe8ff; }
   .intro-meta li { font-size: 13px; }
   .intro-side .main-button { margin-top: 36px; width: 340px; max-width: none; min-height: 56px; font-size: 17px; }
   .intro-count { font-size: 14px; }
-  .loading-cat .cat { width: 210px; height: 280px; }
+  .loading-cat .cat { width: 240px; height: 240px; }
   .loading h2 { font-size: 34px; }
   .result-hero .cat { width: 280px; height: 280px; }
   .result-badge { font-size: 52px; }

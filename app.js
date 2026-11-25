@@ -60,10 +60,7 @@
   }
 
   function cat(mood) {
-    if (mood === 'thinking') {
-      return '<img class="cat cat-thinking" src="assets/magic-cat.svg" width="180" height="240" alt="마법사 모자를 쓰고 별 지팡이를 든 고양이" />'
-    }
-    return '<img class="cat cat-' + (mood || 'curious') + '" src="assets/wizard-cat.svg" width="400" height="400" alt="별무늬 모자를 쓴 마법사와 지팡이를 든 마법 고양이" />'
+    return '<img class="cat cat-' + (mood || 'curious') + '" src="assets/wizard-cat.png" width="340" height="350" alt="고깔모자를 쓴 마법사와 별 지팡이를 든 마법 고양이" />'
   }
 
   var paw =
@@ -133,9 +130,7 @@
         '<div class="intro-copy"><p>온라인으로 알아보는 나의 일상</p>' +
         '<h1><em>ADHD</em><br />자가진단 테스트</h1>' +
         '<span>일상 속 내 모습을 떠올리며<br />솔직하게 답해 주세요.</span></div>' +
-        '<ul class="intro-meta"><li>5문항</li><li>약 1분</li><li>익명 참여</li></ul>' +
         '<button class="main-button" data-action="start">테스트 시작하기 <b>→</b></button>' +
-        (participants > 0 ? '<p class="intro-count">지금까지 <b>' + participants.toLocaleString('ko-KR') + '명</b>이 응답했어요</p>' : '') +
       '</div>' +
       '</section>'
   }
