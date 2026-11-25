@@ -23,12 +23,13 @@
   ]
 
   var changeOptions = [
-    '이전에도 적절하지 않다고 생각했으며, 지금도 같은 생각이다.',
-    '이전에는 괜찮다고 생각했지만, 이제는 신중하게 사용해야 한다고 생각한다.',
-    '적절하지 않다는 생각은 들지만, 앞으로도 습관적으로 사용할 것 같다.',
-    '이전에도 괜찮다고 생각했으며, 지금도 사용하는 데 문제가 없다고 생각한다.',
-    '잘 모르겠다.',
+    '테스트 전과 같다. 문제없는 표현이라고 생각한다.',
+    '테스트 전과 같다. 조심해야 할 표현이라고 생각한다.',
+    '테스트 후, 조심해서 써야겠다고 생각이 바뀌었다.',
+    '테스트 후, 크게 문제없는 표현이라고 생각이 바뀌었다.',
+    '기타 (직접 작성)',
   ]
+  var CHANGE_OTHER = changeOptions.length - 1 // 마지막 선택지 = 기타(직접 작성)
 
   var state = {
     screen: 'intro', // intro | quiz | loading | result | survey
@@ -38,6 +39,7 @@
     surveyFrequency: null,
     surveyRecognition: null,
     surveyChange: null,
+    surveyChangeOther: '',
     surveyComment: '',
     copied: false,
     submitted: false,
@@ -119,7 +121,7 @@
       '<div class="stat-card"><div class="stat-title"><span>전문의 진단 필요성 인식</span><b>' + average(stats.recognition) + '<small> / 5</small></b></div>' +
       statBars(stats.recognition, five, true, ends) + '</div>' +
       '<div class="stat-card"><div class="stat-title"><span>테스트 후 인식 변화</span></div>' +
-      statBars(stats.change, ['계속 부적절', '이제 신중하게', '습관 지속 예상', '계속 문제없음', '잘 모르겠음'], false) + '</div>' +
+      statBars(stats.change, ['전과 같음 · 문제없음', '전과 같음 · 조심해야 함', '조심하는 쪽으로 바뀜', '문제없는 쪽으로 바뀜', '기타'], false) + '</div>' +
       '<p class="stats-update">5초마다 최신 응답으로 자동 업데이트됩니다.</p>' +
       '</section>'
   }
@@ -212,17 +214,25 @@
       '</section>'
   }
 
+  function surveyReady() {
+    return state.surveyFrequency !== null && state.surveyRecognition !== null && state.surveyChange !== null &&
+      (state.surveyChange !== CHANGE_OTHER || state.surveyChangeOther.trim() !== '')
+  }
+
   function viewSurvey() {
-    var canSubmit = state.surveyFrequency !== null && state.surveyRecognition !== null && state.surveyChange !== null && !state.isSubmitting && !state.submitted
+    var canSubmit = surveyReady() && !state.isSubmitting && !state.submitted
     return '<section class="survey-page enter">' +
       '<article class="survey" id="survey">' +
         '<span class="survey-label">인식 설문</span>' +
         '<div class="survey-question"><h2>1. 평소 ‘나 완전 ADHD인가 봐’라는 말을 얼마나 자주 사용했나요?</h2>' + likert('surveyFrequency', state.surveyFrequency) + '</div>' +
         '<div class="survey-question"><h2>2. ADHD는 전문의의 진단이 필요한 신경발달장애라고 생각하나요?</h2>' + likert('surveyRecognition', state.surveyRecognition) + '</div>' +
-        '<div class="survey-question"><h2>3. 이번 테스트에 참여한 후, 일상적인 실수나 집중력 저하를 ADHD라고 표현하는 것에 대한 생각이 어떻게 달라졌나요?</h2>' +
+        '<div class="survey-question"><h2>3. 이번 테스트에 참여한 후, 일상적인 실수나 집중력 저하를 ‘ADHD 같다’고 표현하는 것에 대해 어떻게 생각하나요?</h2>' +
           '<div class="survey-options">' + changeOptions.map(function (item, i) {
             return '<button class="' + (state.surveyChange === i ? 'selected' : '') + '" data-action="change" data-value="' + i + '" aria-pressed="' + (state.surveyChange === i) + '"' + (state.submitted ? ' disabled' : '') + '><i>' + (i + 1) + '</i>' + esc(item) + '<b>✓</b></button>'
           }).join('') + '</div>' +
+          (state.surveyChange === CHANGE_OTHER
+            ? '<input id="survey-change-other" class="survey-other" type="text" maxlength="200" placeholder="생각을 직접 적어 주세요." value="' + esc(state.surveyChangeOther) + '"' + (state.submitted ? ' disabled' : '') + ' />'
+            : '') +
         '</div>' +
         '<div class="survey-question">' +
           '<label for="survey-comment">4. 이 테스트의 전후에서 ADHD에 대한 인식 변화가 있다면 적어주세요.</label>' +
@@ -421,6 +431,13 @@
 
     var ta = document.getElementById('survey-comment')
     if (ta) ta.addEventListener('input', function (e) { state.surveyComment = e.target.value })
+    var other = document.getElementById('survey-change-other')
+    if (other) other.addEventListener('input', function (e) {
+      // 다시 그리면 입력 중 포커스가 풀리므로 제출 버튼 상태만 직접 갱신
+      state.surveyChangeOther = e.target.value
+      var btn = root.querySelector('.survey-submit')
+      if (btn && !state.submitted && !state.isSubmitting) btn.disabled = !surveyReady()
+    })
   }
 
   function setScreen(s) {
@@ -456,7 +473,7 @@
   }
 
   function submitSurvey() {
-    if (state.surveyFrequency === null || state.surveyRecognition === null || state.surveyChange === null || state.isSubmitting || state.submitted) return
+    if (!surveyReady() || state.isSubmitting || state.submitted) return
     state.isSubmitting = true
     state.submitError = ''
     render()
@@ -477,6 +494,7 @@
         frequency: state.surveyFrequency,
         recognition: state.surveyRecognition,
         changeResponse: state.surveyChange + 1,
+        changeOther: state.surveyChange === CHANGE_OTHER ? state.surveyChangeOther.trim().slice(0, 200) : '',
         comment: state.surveyComment.trim().slice(0, 1000),
       }),
     })
@@ -523,6 +541,7 @@
     state.surveyFrequency = null
     state.surveyRecognition = null
     state.surveyChange = null
+    state.surveyChangeOther = ''
     state.surveyComment = ''
     state.submitted = false
     state.submitError = ''
@@ -556,7 +575,11 @@
     }
     else if (a === 'back') goBack()
     else if (a === 'likert') { state[el.getAttribute('data-field')] = v; render() }
-    else if (a === 'change') { state.surveyChange = v; render() }
+    else if (a === 'change') {
+      state.surveyChange = v
+      render()
+      if (v === CHANGE_OTHER) { var o = document.getElementById('survey-change-other'); if (o && !o.value) o.focus() }
+    }
     else if (a === 'submit') submitSurvey()
     else if (a === 'toSurvey') setScreen('survey')
     else if (a === 'share') share()

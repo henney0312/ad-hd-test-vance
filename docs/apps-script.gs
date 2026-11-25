@@ -13,13 +13,13 @@ var RESPONSE_SHEET = '응답';
 var SUMMARY_SHEET = '통계';
 var FEEDBACK_SHEET = '의견';
 var FEEDBACK_HEADERS = ['제출 시각', '의견', '보낸 화면'];
-var HEADERS = ['제출 시각', 'Q1 진단명 표현 사용 빈도 (1~5)', 'Q2 전문의 진단 필요성 인식 (1~5)', 'Q3 인식 변화 (선택지 1~5)', 'Q4 주관식'];
+var HEADERS = ['제출 시각', 'Q1 진단명 표현 사용 빈도 (1~5)', 'Q2 전문의 진단 필요성 인식 (1~5)', 'Q3 인식 변화 (선택지 1~5)', 'Q4 주관식', 'Q3 기타 직접 작성'];
 var CHANGE_LABELS = [
-  '1. 이전에도 부적절, 지금도 같음',
-  '2. 이전엔 괜찮았으나 이제 신중하게',
-  '3. 부적절하나 습관적으로 계속 사용',
-  '4. 이전에도 지금도 문제없음',
-  '5. 잘 모르겠음',
+  '1. 테스트 전과 같음 · 문제없는 표현',
+  '2. 테스트 전과 같음 · 조심해야 할 표현',
+  '3. 테스트 후 조심하는 쪽으로 바뀜',
+  '4. 테스트 후 문제없는 쪽으로 바뀜',
+  '5. 기타 (직접 작성, F열)',
 ];
 
 /** 처음 한 번 실행: 응답·통계 탭 생성 */
@@ -81,6 +81,11 @@ function responses_() {
     sh.setColumnWidths(2, 3, 190);
     sh.setColumnWidth(5, 420);
   }
+  // 이전 버전으로 만든 시트에는 F열(Q3 기타) 머리글이 없으므로 채워 넣음
+  if (sh.getRange(1, 6).getValue() === '') {
+    sh.getRange(1, 6).setValue(HEADERS[5]).setFontWeight('bold').setBackground('#e5f3ff');
+    sh.setColumnWidth(6, 300);
+  }
   return sh;
 }
 
@@ -113,6 +118,7 @@ function summary_() {
   var q3 = block('Q3. 테스트 참여 후 인식 변화', 'D', CHANGE_LABELS);
   rows.push(['', '', '']);
   rows.push(['Q4 주관식 응답 수', '=COUNTA(' + R + 'E2:E)', '']);
+  rows.push(['Q3 기타 직접 작성 수', '=COUNTA(' + R + 'F2:F)', '']);
 
   sh.getRange(1, 1, rows.length, 3).setValues(rows);
   sh.getRange('A1').setFontWeight('bold').setFontSize(14);
@@ -158,12 +164,13 @@ function doPost(e) {
     return json_({ error: '모든 선택 문항에 응답해 주세요.' });
   }
   var comment = safeText_(v.comment);
+  var changeOther = v.changeResponse === 5 ? safeText_(v.changeOther).slice(0, 200) : '';
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
     var sh = responses_();
     summary_();
-    sh.appendRow([new Date(), v.frequency, v.recognition, v.changeResponse, comment]);
+    sh.appendRow([new Date(), v.frequency, v.recognition, v.changeResponse, comment, changeOther]);
   } finally {
     lock.releaseLock();
   }
