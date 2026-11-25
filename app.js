@@ -59,7 +59,7 @@
   }
 
   function cat(mood) {
-    return '<img class="cat cat-' + (mood || 'curious') + '" src="assets/snowman.svg" width="300" height="330" alt="하늘색 모자와 목도리를 한 눈사람" />'
+    return '<img class="cat cat-' + (mood || 'curious') + '" src="assets/me-cat.png" width="288" height="317" alt="ME!라고 적힌 손그림 고양이 얼굴" />'
   }
 
   var paw =
@@ -150,7 +150,7 @@
     return '<section class="loading enter">' +
       '<div class="loading-cat">' + cat('thinking') + '</div>' +
       '<div class="dots"><i></i><i></i><i></i></div>' +
-      '<h2>눈사람이 답변을<br />살펴보고 있어요</h2>' +
+      '<h2>고양이가 답변을<br />살펴보고 있어요</h2>' +
       '<p>잠시만 기다려 주세요.</p>' +
       '</section>'
   }
