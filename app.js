@@ -161,7 +161,7 @@
     return '<section class="loading enter">' +
       '<div class="loading-cat">' + cat('thinking') + '</div>' +
       '<div class="dots"><i></i><i></i><i></i></div>' +
-      '<h2>마법 고양이가 답변을<br />살펴보고 있어요</h2>' +
+      '<h2>고양이가 답변을<br />살펴보고 있어요</h2>' +
       '<p>잠시만 기다려 주세요.</p>' +
       '</section>'
   }
