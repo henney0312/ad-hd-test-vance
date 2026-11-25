@@ -484,39 +484,61 @@ button.header-paw:hover { background: #dbe8ff; }
   .info-card h2, .official-link-card h2 { font-size: 30px; }
 }
 
-/* 판정 불가 도장 모션: 결과 화면에 처음 들어올 때 한 번만 쾅! */
-.result-badge { position: relative; border-width: 3px; transform: rotate(-6deg); }
+/* 결과 화면 연출: 카드·그림은 처음부터 → 고양이가 마법봉을 숑 내림(0.7~0.9s)
+   → 별에서 뾰로롱 + 빨간 빛 발사(0.9~1.3s) → 판정 불가 크게 쾅(1.3~1.6s) → 약 1초 뒤 글자 등장 */
+.cat-stage { position: relative; display: block; overflow: visible; }
+.result-hero .cat-stage { height: auto; aspect-ratio: 340 / 350; }
+.cat-stage > img { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }
+.cat-stage .wand { position: absolute; inset: 6px; transform-origin: 35.6% 22.3%; }
+.cat-stage .wand img { width: 100%; height: 100%; display: block; }
+.cat-stage .wand-tip { position: absolute; left: 20.6%; top: 13.7%; width: 1px; height: 1px; }
+.result.enter .cat-stage .wand { animation: wand-swish 1.6s cubic-bezier(.5, 0, .3, 1) .2s both; }
+@keyframes wand-swish {
+  0% { transform: rotate(0); }
+  30% { transform: rotate(16deg); }
+  45% { transform: rotate(-38deg); }
+  70% { transform: rotate(-34deg); }
+  100% { transform: rotate(0); }
+}
+.magic-spark { position: absolute; z-index: 50; pointer-events: none; color: #f04452; font-size: 16px; line-height: 1; text-shadow: 0 0 6px rgba(240, 68, 82, .7); }
+.magic-beam { position: absolute; z-index: 49; height: 6px; border-radius: 6px; pointer-events: none; transform-origin: 0 50%;
+  background: linear-gradient(90deg, rgba(255, 120, 130, .2), #ff3b4a 70%, #fff 100%); box-shadow: 0 0 14px 4px rgba(240, 68, 82, .55); }
+.magic-orb { position: absolute; z-index: 51; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, #fff 0 25%, #ff5562 45%, rgba(240, 68, 82, 0) 72%); box-shadow: 0 0 24px 10px rgba(240, 68, 82, .5); }
+
+.result-badge { position: relative; border-width: 3px; transform: rotate(-6deg); font-size: 48px; padding: 8px 24px 6px; }
 .result-badge::after { content: ''; position: absolute; inset: -3px; border: 3px solid #f04452; border-radius: inherit; opacity: 0; pointer-events: none; }
-/* 순서: 빈 화면 → 도장 쾅(0.2s) → 약 1초 뒤 나머지 내용 등장(1.5s~) */
+@media (min-width: 768px) { .result-badge { font-size: 64px; padding: 10px 30px 8px; } }
 .result.enter { animation: none; }
-.result.enter .result-badge { animation: stamp-in .42s cubic-bezier(.3, 1.4, .5, 1) .2s both; }
-.result.enter .result-badge::after { animation: stamp-ring .55s ease-out .47s both; }
-.result.enter .result-hero { animation: stamp-shake .32s ease-out .47s; }
-.result.enter .result-hero > :not(.result-badge),
-.result.enter > :not(.result-hero) { animation: stamp-after .5s ease 1.5s both; }
-.result.enter .result-hero > h1 { animation-delay: 1.5s; }
-.result.enter .result-hero > .consult-message { animation-delay: 1.7s; }
+.result.enter .result-badge { animation: stamp-in .45s cubic-bezier(.3, 1.4, .5, 1) 1.3s both; }
+.result.enter .result-badge::after { animation: stamp-ring .6s ease-out 1.55s both; }
+.result.enter .result-hero { animation: stamp-shake .36s ease-out 1.55s; }
+.result.enter .result-hero > h1,
+.result.enter .result-hero > .consult-message,
 .result.enter .result-hero > .scroll-note,
-.result.enter > :not(.result-hero) { animation-delay: 1.9s; }
+.result.enter > :not(.result-hero) { animation: stamp-after .5s ease 2.5s both; }
+.result.enter .result-hero > .consult-message { animation-delay: 2.7s; }
+.result.enter .result-hero > .scroll-note,
+.result.enter > :not(.result-hero) { animation-delay: 2.9s; }
 @keyframes stamp-after { from { opacity: 0; transform: translateY(10px); } }
 @keyframes stamp-in {
-  0% { opacity: 0; transform: scale(3.2) rotate(-16deg); filter: blur(3px); }
-  55% { opacity: 1; transform: scale(.9) rotate(-5deg); filter: none; }
-  75% { transform: scale(1.05) rotate(-6deg); }
+  0% { opacity: 0; transform: scale(4.2) rotate(-18deg); filter: blur(4px); }
+  55% { opacity: 1; transform: scale(.88) rotate(-5deg); filter: none; }
+  75% { transform: scale(1.06) rotate(-6deg); }
   100% { opacity: 1; transform: scale(1) rotate(-6deg); }
 }
 @keyframes stamp-ring {
-  0% { opacity: .55; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.45); }
+  0% { opacity: .6; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.5); }
 }
 @keyframes stamp-shake {
   0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-4px, 3px); }
-  40% { transform: translate(4px, -2px); }
-  60% { transform: translate(-3px, 1px); }
-  80% { transform: translate(2px, -1px); }
+  15% { transform: translate(-6px, 4px); }
+  35% { transform: translate(6px, -3px); }
+  55% { transform: translate(-4px, 2px); }
+  75% { transform: translate(3px, -1px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .result.enter .result-badge, .result.enter .result-badge::after, .result.enter .result-hero { animation: none; }
-  .result.enter .result-hero > :not(.result-badge), .result.enter > :not(.result-hero) { animation-duration: .01s; }
+  .result.enter .result-badge, .result.enter .result-badge::after, .result.enter .result-hero, .result.enter .cat-stage .wand { animation: none; }
+  .result.enter .result-hero > *, .result.enter > :not(.result-hero) { animation: none; }
 }

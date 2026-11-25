@@ -60,7 +60,15 @@
   }
 
   function cat(mood) {
-    return '<img class="cat cat-' + (mood || 'curious') + '" src="assets/wizard-cat.png" width="340" height="350" alt="고깔모자를 쓴 마법사와 별 지팡이를 든 마법 고양이" />'
+    var alt = '고깔모자를 쓴 마법사와 별 지팡이를 든 마법 고양이'
+    if (mood === 'smile') {
+      // 결과 화면: 마법봉을 따로 떼어 움직일 수 있게 겹쳐 그림
+      return '<div class="cat cat-smile cat-stage" role="img" aria-label="' + alt + '">' +
+        '<img src="assets/wizard-cat-base.png" width="340" height="350" alt="" />' +
+        '<div class="wand"><img src="assets/wand.png" width="340" height="350" alt="" /><i class="wand-tip"></i></div>' +
+        '</div>'
+    }
+    return '<img class="cat cat-' + (mood || 'curious') + '" src="assets/wizard-cat.png" width="340" height="350" alt="' + alt + '" />'
   }
 
   var paw =
@@ -224,6 +232,52 @@
       '</section>'
   }
 
+  // 결과 화면 연출: 별 끝에서 뾰로롱 → 빨간 빛이 판정 불가 자리로 발사 → 쾅(진동)
+  function playVerdictMagic() {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce) return
+    setTimeout(function () {
+      var tip = root.querySelector('.wand-tip'), badge = root.querySelector('.result-badge')
+      if (!tip || !badge || !tip.animate) return
+      var a = tip.getBoundingClientRect(), b = badge.getBoundingClientRect()
+      var sx = a.left + window.scrollX, sy = a.top + window.scrollY
+      var ex = b.left + b.width / 2 + window.scrollX, ey = b.top + b.height / 2 + window.scrollY
+      var made = []
+      function add(cls, css, html) {
+        var el = document.createElement('div'); el.className = cls; el.style.cssText = css
+        if (html) el.innerHTML = html
+        document.body.appendChild(el); made.push(el); return el
+      }
+      // 뾰로롱: 별 주위로 작은 반짝이가 퍼짐
+      for (var i = 0; i < 8; i++) {
+        var ang = (Math.PI * 2 * i) / 8, d = 26 + (i % 2) * 14
+        var sp = add('magic-spark', 'left:' + (sx - 8) + 'px;top:' + (sy - 8) + 'px;font-size:' + (i % 2 ? 12 : 17) + 'px', '✦')
+        sp.animate([
+          { transform: 'translate(0,0) scale(.3)', opacity: 0 },
+          { transform: 'translate(' + Math.cos(ang) * d * .6 + 'px,' + Math.sin(ang) * d * .6 + 'px) scale(1.1)', opacity: 1, offset: .4 },
+          { transform: 'translate(' + Math.cos(ang) * d + 'px,' + Math.sin(ang) * d + 'px) scale(.4) rotate(90deg)', opacity: 0 }
+        ], { duration: 620, easing: 'ease-out', fill: 'forwards' })
+      }
+      // 빨간 빛줄기 + 빛 구슬 발사
+      var dx = ex - sx, dy = ey - sy, len = Math.sqrt(dx * dx + dy * dy), deg = Math.atan2(dy, dx) * 180 / Math.PI
+      var beam = add('magic-beam', 'left:' + sx + 'px;top:' + (sy - 3) + 'px;width:' + len + 'px;transform:rotate(' + deg + 'deg) scaleX(0)')
+      beam.animate([
+        { transform: 'rotate(' + deg + 'deg) scaleX(0)', opacity: 1 },
+        { transform: 'rotate(' + deg + 'deg) scaleX(1)', opacity: 1, offset: .65 },
+        { transform: 'rotate(' + deg + 'deg) scaleX(1)', opacity: 0 }
+      ], { duration: 560, delay: 60, easing: 'ease-in', fill: 'forwards' })
+      var orb = add('magic-orb', 'left:' + sx + 'px;top:' + sy + 'px')
+      orb.animate([
+        { transform: 'translate(0,0) scale(.6)', opacity: 1 },
+        { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1.6)', opacity: 1, offset: .85 },
+        { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(3)', opacity: 0 }
+      ], { duration: 460, delay: 60, easing: 'cubic-bezier(.5,0,.9,.6)', fill: 'forwards' })
+      setTimeout(function () { made.forEach(function (el) { el.remove() }) }, 900)
+    }, 900)
+    // 쾅! 찍히는 순간 휴대폰 진동 (지원하는 기기만)
+    if (navigator.vibrate) setTimeout(function () { try { navigator.vibrate([30, 20, 60]) } catch (e) {} }, 1560)
+  }
+
   function render() {
     var s = state.screen
     var view = s + ':' + state.current
@@ -248,10 +302,7 @@
       if (sec) sec.classList.remove('enter')
     }
     window.scrollTo(0, keepScroll)
-    if (s === 'result' && view !== lastView && navigator.vibrate) {
-      // 도장이 찍히는 순간 휴대폰 진동 (지원하는 기기만)
-      setTimeout(function () { try { navigator.vibrate(40) } catch (e) {} }, 480)
-    }
+    if (s === 'result' && view !== lastView) playVerdictMagic()
     lastView = view
 
     var ta = document.getElementById('survey-comment')
