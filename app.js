@@ -31,7 +31,8 @@
   ]
 
   var state = {
-    screen: 'intro', // intro | quiz | loading | result
+    screen: 'intro', // intro | quiz | loading | result | survey
+    verdictShown: false, // 판정 연출은 처음 결과 화면에 들어올 때 한 번만
     current: 0,
     answers: [],
     surveyFrequency: null,
@@ -167,8 +168,7 @@
   }
 
   function viewResult() {
-    var canSubmit = state.surveyFrequency !== null && state.surveyRecognition !== null && state.surveyChange !== null && !state.isSubmitting && !state.submitted
-    return '<section class="result enter">' +
+    return '<section class="result' + (state.verdictShown ? '' : ' enter') + '">' +
       '<div class="result-hero">' +
         '<span class="result-label">테스트 결과</span>' + cat('smile') +
         '<div class="result-badge">판정 불가</div>' +
@@ -202,6 +202,19 @@
         '<a href="https://www.mentalhealth.go.kr/portal/disease/diseaseDetail.do?dissId=16" target="_blank" rel="noreferrer">공식 사이트 바로가기 <b>↗</b></a>' +
       '</article>' +
 
+      '<div class="next-step">' +
+        '<span>잠깐만요!</span>' +
+        '<h2>다른 사람들은<br />어떻게 생각할까요?</h2>' +
+        '<p>1분짜리 설문에 답하면 다른 참여자들의 응답 통계를 볼 수 있어요.</p>' +
+        '<button class="main-button" data-action="toSurvey">설문하고 통계 보기 <b>→</b></button>' +
+        '<button class="retry" data-action="restart">처음부터 다시 하기</button>' +
+      '</div>' +
+      '</section>'
+  }
+
+  function viewSurvey() {
+    var canSubmit = state.surveyFrequency !== null && state.surveyRecognition !== null && state.surveyChange !== null && !state.isSubmitting && !state.submitted
+    return '<section class="survey-page enter">' +
       '<article class="survey" id="survey">' +
         '<span class="survey-label">인식 설문</span>' +
         '<div class="survey-question"><h2>1. 평소 ‘나 완전 ADHD인가 봐’라는 말을 얼마나 자주 사용했나요?</h2>' + likert('surveyFrequency', state.surveyFrequency) + '</div>' +
@@ -385,13 +398,13 @@
     var keepScroll = view === lastView ? window.scrollY : 0
 
     var showBack = !(s === 'intro' || s === 'loading')
-    var body = s === 'intro' ? viewIntro() : s === 'quiz' ? viewQuiz() : s === 'loading' ? viewLoading() : viewResult()
+    var body = s === 'intro' ? viewIntro() : s === 'quiz' ? viewQuiz() : s === 'loading' ? viewLoading() : s === 'survey' ? viewSurvey() : viewResult()
 
     root.innerHTML =
       '<main class="site screen-' + s + '"><div class="phone">' +
         '<header><div class="header-inner">' +
           (showBack ? '<button class="ios-back" data-action="back" aria-label="이전 화면">‹</button>' : '<span class="nav-spacer"></span>') +
-          '<strong>' + (s === 'result' ? '테스트 결과' : 'ADHD 자가진단 테스트') + '</strong>' +
+          '<strong>' + (s === 'result' ? '테스트 결과' : s === 'survey' ? '인식 설문' : 'ADHD 자가진단 테스트') + '</strong>' +
           '<button class="header-paw feedback-open" data-action="feedback" aria-label="우리 팀에게 의견 보내기" title="우리 팀에게 의견 보내기">' + paw + '</button>' +
         '</div></header>' +
         body +
@@ -403,7 +416,7 @@
       if (sec) sec.classList.remove('enter')
     }
     window.scrollTo(0, keepScroll)
-    if (s === 'result' && view !== lastView) playVerdictMagic()
+    if (s === 'result' && view !== lastView && !state.verdictShown) { state.verdictShown = true; playVerdictMagic() }
     lastView = view
 
     var ta = document.getElementById('survey-comment')
@@ -421,7 +434,7 @@
   }
 
   function syncStatsPolling() {
-    var should = state.screen === 'result' && state.submitted && !!ENDPOINT
+    var should = state.screen === 'survey' && state.submitted && !!ENDPOINT
     if (should && !statsTimer) {
       statsTimer = setInterval(refreshStats, 5000)
     } else if (!should && statsTimer) {
@@ -514,6 +527,7 @@
     state.submitted = false
     state.submitError = ''
     state.stats = null
+    state.verdictShown = false
     setScreen('intro')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -522,6 +536,8 @@
     if (state.screen === 'quiz' && state.current > 0) {
       state.current -= 1
       render()
+    } else if (state.screen === 'survey') {
+      setScreen('result')
     } else {
       setScreen('intro')
     }
@@ -542,6 +558,7 @@
     else if (a === 'likert') { state[el.getAttribute('data-field')] = v; render() }
     else if (a === 'change') { state.surveyChange = v; render() }
     else if (a === 'submit') submitSurvey()
+    else if (a === 'toSurvey') setScreen('survey')
     else if (a === 'share') share()
     else if (a === 'restart') restart()
     else if (a === 'feedback') openFeedback()
