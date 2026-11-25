@@ -59,7 +59,14 @@
   }
 
   function cat(mood) {
-    return '<img class="cat cat-' + (mood || 'curious') + '" src="assets/me-cat.png" width="288" height="317" alt="ME!라고 적힌 손그림 고양이 얼굴" />'
+    var m = mood || 'curious'
+    return '<span class="cat-wrap cat-wrap-' + m + '">' +
+      '<img class="cat cat-' + m + '" src="assets/me-cat-clear.png" width="288" height="317" alt="마법사 모자를 쓴 손그림 고양이" />' +
+      '<img class="cat-hat" src="assets/wizard-hat.svg" alt="" aria-hidden="true" />' +
+      '<img class="cat-wand" src="assets/wand.svg" alt="" aria-hidden="true" />' +
+      '<img class="cat-sparkle s1" src="assets/sparkle.svg" alt="" aria-hidden="true" />' +
+      '<img class="cat-sparkle s2" src="assets/sparkle.svg" alt="" aria-hidden="true" />' +
+      '</span>'
   }
 
   var paw =
