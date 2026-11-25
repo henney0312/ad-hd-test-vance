@@ -224,32 +224,27 @@
   function render() {
     var s = state.screen
     var view = s + ':' + state.current
-    var phone = root.querySelector('.phone')
-    var keepScroll = phone && view === lastView ? phone.scrollTop : 0
+    var keepScroll = view === lastView ? window.scrollY : 0
 
     var showBack = !(s === 'intro' || s === 'loading')
     var body = s === 'intro' ? viewIntro() : s === 'quiz' ? viewQuiz() : s === 'loading' ? viewLoading() : viewResult()
 
     root.innerHTML =
-      '<main class="site"><div class="phone">' +
-        '<div class="ios-statusbar" aria-hidden="true"><span>9:41</span><i class="dynamic-island"></i>' +
-          '<div class="status-icons"><b class="signal">▮▮▮▮</b><b class="wifi">⌁</b><b class="battery"></b></div></div>' +
-        '<header>' +
+      '<main class="site screen-' + s + '"><div class="phone">' +
+        '<header><div class="header-inner">' +
           (showBack ? '<button class="ios-back" data-action="back" aria-label="이전 화면">‹</button>' : '<span class="nav-spacer"></span>') +
           '<strong>' + (s === 'result' ? '테스트 결과' : 'ADHD 자가진단 테스트') + '</strong>' +
           '<span class="header-paw">' + paw + '</span>' +
-        '</header>' +
+        '</div></header>' +
         body +
-        '<div class="ios-home-indicator" aria-hidden="true"></div>' +
       '</div></main>'
 
-    var newPhone = root.querySelector('.phone')
     if (view === lastView) {
       // 같은 화면 안에서의 갱신(설문 선택 등)은 등장 애니메이션·스크롤 위치를 유지
-      var sec = newPhone.querySelector('.enter')
+      var sec = root.querySelector('.enter')
       if (sec) sec.classList.remove('enter')
     }
-    newPhone.scrollTop = keepScroll
+    window.scrollTo(0, keepScroll)
     lastView = view
 
     var ta = document.getElementById('survey-comment')
