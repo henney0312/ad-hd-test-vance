@@ -538,6 +538,14 @@ button.header-paw:hover { background: #dbe8ff; }
   55% { transform: translate(-4px, 2px); }
   75% { transform: translate(3px, -1px); }
 }
+/* 경고 표시: 모든 요소 뒤(배경 바로 위)에서 깜빡임 */
+.screen-result { position: relative; z-index: 1; }
+.screen-result, .screen-result .phone, .screen-result .result { background: transparent; }
+.warning-flash { position: fixed; inset: 0; z-index: 0; display: grid; place-items: center; pointer-events: none; opacity: 0; }
+.warning-flash svg { width: min(96vw, 92vh); height: auto; overflow: visible; filter: drop-shadow(0 0 18px rgba(255, 226, 40, .95)) drop-shadow(0 0 60px rgba(255, 210, 0, .6)); }
+.warning-flash .tri { fill: rgba(255, 244, 120, .14); stroke: #fff04a; stroke-width: 13; stroke-linejoin: round; }
+.warning-flash .ex { fill: #111; }
+
 @media (prefers-reduced-motion: reduce) {
   .result.enter .result-badge, .result.enter .result-badge::after, .result.enter .result-hero, .result.enter .cat-stage .wand { animation: none; }
   .result.enter .result-hero > *, .result.enter > :not(.result-hero) { animation: none; }

@@ -255,6 +255,7 @@
     g.gain.exponentialRampToValueAtTime(peak, t + a)
     g.gain.exponentialRampToValueAtTime(0.0001, t + a + r)
   }
+  var SIREN_AT = 1560, SIREN_CYCLE = 900, SIREN_TIMES = 3
   var sfx = {
     swish: function (ctx, t) { // 숑: 바람 소리가 위로 쓸려 올라감
       var n = ctx.createBufferSource(); n.buffer = noiseBuf(ctx, .35)
@@ -277,11 +278,11 @@
       var g = ctx.createGain(); env(ctx, g, t, .12, .02, .38)
       o.connect(f); f.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + .45)
     },
-    siren: function (ctx, t) { // 왜용왜용: 경고 사이렌 두 번
+    siren: function (ctx, t) { // 왜용왜용: 경고 사이렌 (경고 표시 깜빡임과 같은 박자)
       var o = ctx.createOscillator(); o.type = 'square'
-      var dur = 1.4, cycle = .7
+      var cycle = SIREN_CYCLE / 1000, dur = cycle * SIREN_TIMES
       o.frequency.setValueAtTime(620, t)
-      for (var k = 0; k < 2; k++) {
+      for (var k = 0; k < SIREN_TIMES; k++) {
         o.frequency.linearRampToValueAtTime(1250, t + k * cycle + cycle * .5)
         o.frequency.linearRampToValueAtTime(620, t + (k + 1) * cycle)
       }
@@ -310,11 +311,32 @@
     try { sfx[name](ctx, ctx.currentTime + delayMs / 1000) } catch (e) {}
   }
 
+  // 화면 전체 뒤에서 노란 경고 표시가 사이렌 박자에 맞춰 3번 깜빡이고 사라짐
+  function flashWarning() {
+    var w = document.createElement('div')
+    w.className = 'warning-flash'
+    w.setAttribute('aria-hidden', 'true')
+    w.innerHTML = '<svg viewBox="0 0 220 200"><path class="tri" d="M110 16 Q118 16 123 24 L204 166 Q210 180 194 182 L26 182 Q10 180 16 166 L97 24 Q102 16 110 16 Z"/>' +
+      '<rect class="ex" x="101" y="64" width="18" height="76"/><rect class="ex" x="101" y="152" width="18" height="17"/></svg>'
+    document.body.appendChild(w)
+    if (!w.animate) { setTimeout(function () { w.remove() }, SIREN_AT + SIREN_CYCLE * SIREN_TIMES); return }
+    var a = w.animate([
+      { opacity: 0, transform: 'scale(.96)' },
+      { opacity: 1, transform: 'scale(1.02)', offset: .18 },
+      { opacity: .85, transform: 'scale(1)', offset: .45 },
+      { opacity: 0, transform: 'scale(.98)' }
+    ], { duration: SIREN_CYCLE, delay: SIREN_AT, iterations: SIREN_TIMES, easing: 'ease-out', fill: 'both' })
+    a.onfinish = function () { w.remove() }
+    // 다른 화면으로 넘어가면 바로 정리
+    setTimeout(function () { if (w.parentNode) w.remove() }, SIREN_AT + SIREN_CYCLE * SIREN_TIMES + 500)
+  }
+
   // 결과 화면 연출: 별 끝에서 뾰로롱 → 빨간 빛이 판정 불가 자리로 발사 → 쾅(진동)
   function playVerdictMagic() {
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduce) return
-    play('swish', 680); play('sparkle', 900); play('zap', 960); play('stamp', 1500); play('siren', 1560)
+    play('swish', 680); play('sparkle', 900); play('zap', 960); play('stamp', 1500); play('siren', SIREN_AT)
+    flashWarning()
     setTimeout(function () {
       var tip = root.querySelector('.wand-tip'), badge = root.querySelector('.result-badge')
       if (!tip || !badge || !tip.animate) return
