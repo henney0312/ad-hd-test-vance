@@ -325,3 +325,41 @@ header {
   .retry { font-size: 15px; }
   .main-button:hover, .survey-submit:hover:not(:disabled), .official-link-card a:hover { opacity: .9; }
 }
+
+/* ===== 팀 의견 보내기 (헤더 발바닥 버튼) ===== */
+button.header-paw { border: 0; padding: 0; transition: transform .12s, background .12s; }
+button.header-paw:hover { background: #d4eaff; }
+button.header-paw:active { transform: scale(.92); }
+.feedback-open-body { overflow: hidden; }
+.feedback-layer { position: fixed; inset: 0; z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
+.feedback-layer[hidden] { display: none; }
+.feedback-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.36); animation: fb-fade .2s ease both; }
+.feedback-sheet {
+  position: relative; width: 100%; max-height: 92dvh; overflow-y: auto;
+  padding: 28px 20px calc(24px + env(safe-area-inset-bottom)); border-radius: 20px 20px 0 0;
+  background: #fff; color: #1c1c1e; text-align: center; animation: fb-up .28s ease both;
+}
+.feedback-sheet > .header-paw { margin: 0 auto 12px; width: 40px; height: 40px; }
+.feedback-sheet > .header-paw svg { width: 20px; }
+.feedback-sheet h2 { font-size: 22px; line-height: 1.4; letter-spacing: -.04em; font-weight: 800; }
+.feedback-desc { margin-top: 10px; color: #636366; font-size: 14px; line-height: 1.55; word-break: keep-all; }
+.feedback-sheet textarea {
+  width: 100%; margin-top: 18px; padding: 13px 14px; border: 1px solid #d1d1d6; border-radius: 12px;
+  background: #f9f9fb; font-size: 15px; line-height: 1.55; text-align: left;
+}
+.feedback-sheet textarea::placeholder { color: #8e8e93; }
+.feedback-sheet textarea:focus { outline: 2px solid rgba(0,122,255,.25); border-color: #007aff; }
+.feedback-count { margin-top: 6px; text-align: right; color: #8e8e93; font-size: 11px; font-variant-numeric: tabular-nums; }
+.feedback-sheet .survey-submit { margin-top: 14px; }
+.feedback-sheet .survey-submit:disabled { background: #c7c7cc; }
+.feedback-close {
+  position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%;
+  background: #f2f2f7; color: #636366; font-size: 22px; line-height: 1; border: 0;
+}
+@keyframes fb-fade { from { opacity: 0; } }
+@keyframes fb-up { from { transform: translateY(24px); opacity: 0; } }
+@media (min-width: 768px) {
+  .feedback-layer { align-items: center; }
+  .feedback-sheet { max-width: 480px; border-radius: 20px; padding: 36px 32px 32px; }
+  .feedback-sheet h2 { font-size: 26px; }
+}

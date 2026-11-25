@@ -6,10 +6,13 @@
  * 시트 구성
  * - '응답' 탭: 응답 원본 (주관식 포함). 시트 소유자·공유받은 사람만 볼 수 있음.
  * - '통계' 탭: 문항별 응답 수·비율·평균 (수식으로 자동 갱신)
+ * - '의견' 탭: 상단 발바닥 버튼으로 받은 팀 의견 (설문과 별도, 웹에 공개되지 않음)
  * - 웹페이지에 공개되는 실시간 통계에는 객관식 집계만 포함되며 주관식은 절대 포함되지 않음.
  */
 var RESPONSE_SHEET = '응답';
 var SUMMARY_SHEET = '통계';
+var FEEDBACK_SHEET = '의견';
+var FEEDBACK_HEADERS = ['제출 시각', '의견', '보낸 화면'];
 var HEADERS = ['제출 시각', 'Q1 진단명 표현 사용 빈도 (1~5)', 'Q2 전문의 진단 필요성 인식 (1~5)', 'Q3 인식 변화 (선택지 1~5)', 'Q4 주관식'];
 var CHANGE_LABELS = [
   '1. 이전에도 부적절, 지금도 같음',
@@ -23,6 +26,43 @@ var CHANGE_LABELS = [
 function setup() {
   responses_();
   summary_();
+  feedback_();
+}
+
+function feedback_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(FEEDBACK_SHEET);
+  if (!sh) sh = ss.insertSheet(FEEDBACK_SHEET);
+  if (sh.getLastRow() === 0) {
+    sh.appendRow(FEEDBACK_HEADERS);
+    sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, FEEDBACK_HEADERS.length).setFontWeight('bold').setBackground('#e5f3ff');
+    sh.setColumnWidth(1, 150);
+    sh.setColumnWidth(2, 520);
+    sh.setColumnWidth(3, 90);
+  }
+  return sh;
+}
+
+function safeText_(t) {
+  t = typeof t === 'string' ? t.trim().slice(0, 1000) : '';
+  // 시트 수식 주입 방지
+  if (/^[=+\-@]/.test(t)) t = "'" + t;
+  return t;
+}
+
+function saveFeedback_(v) {
+  var message = safeText_(v.message);
+  if (!message) return json_({ error: '의견을 입력해 주세요.' });
+  var screenNames = { intro: '첫 화면', quiz: '문항', loading: '로딩', result: '결과' };
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    feedback_().appendRow([new Date(), message, screenNames[v.screen] || '']);
+  } finally {
+    lock.releaseLock();
+  }
+  return json_({ ok: true });
 }
 
 function responses_() {
@@ -113,12 +153,11 @@ function doGet() {
 function doPost(e) {
   var v;
   try { v = JSON.parse(e.postData.contents); } catch (err) { return json_({ error: '올바른 설문 응답 형식이 아닙니다.' }); }
+  if (v && v.type === 'feedback') return saveFeedback_(v);
   if (!v || !isScale_(v.frequency) || !isScale_(v.recognition) || !isScale_(v.changeResponse)) {
     return json_({ error: '모든 선택 문항에 응답해 주세요.' });
   }
-  var comment = typeof v.comment === 'string' ? v.comment.trim().slice(0, 1000) : '';
-  // 시트 수식 주입 방지
-  if (/^[=+\-@]/.test(comment)) comment = "'" + comment;
+  var comment = safeText_(v.comment);
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {

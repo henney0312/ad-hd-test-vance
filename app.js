@@ -234,7 +234,7 @@
         '<header><div class="header-inner">' +
           (showBack ? '<button class="ios-back" data-action="back" aria-label="이전 화면">‹</button>' : '<span class="nav-spacer"></span>') +
           '<strong>' + (s === 'result' ? '테스트 결과' : 'ADHD 자가진단 테스트') + '</strong>' +
-          '<span class="header-paw">' + paw + '</span>' +
+          '<button class="header-paw feedback-open" data-action="feedback" aria-label="우리 팀에게 의견 보내기" title="우리 팀에게 의견 보내기">' + paw + '</button>' +
         '</div></header>' +
         body +
       '</div></main>'
@@ -385,6 +385,107 @@
     else if (a === 'submit') submitSurvey()
     else if (a === 'share') share()
     else if (a === 'restart') restart()
+    else if (a === 'feedback') openFeedback()
+  })
+
+  // ===== 팀 의견 보내기 (헤더 발바닥 버튼) =====
+  var fb = document.createElement('div')
+  fb.className = 'feedback-layer'
+  fb.hidden = true
+  fb.innerHTML =
+    '<div class="feedback-backdrop" data-fb="close"></div>' +
+    '<section class="feedback-sheet" role="dialog" aria-modal="true" aria-labelledby="feedback-title">' +
+      '<button class="feedback-close" data-fb="close" aria-label="닫기">×</button>' +
+      '<span class="header-paw">' + paw + '</span>' +
+      '<h2 id="feedback-title">우리 프로젝트에<br />의견을 남겨주세요!</h2>' +
+      '<p class="feedback-desc">테스트에 대한 생각, 아쉬운 점, 응원의 말 모두 좋아요. 익명으로 팀에게만 전달돼요.</p>' +
+      '<textarea id="feedback-text" maxlength="1000" rows="6" placeholder="자유롭게 작성해 주세요."></textarea>' +
+      '<div class="feedback-count"><span id="feedback-count">0</span> / 1000</div>' +
+      '<button class="survey-submit" id="feedback-submit" data-fb="send" disabled>의견 보내기</button>' +
+      '<p class="survey-error" id="feedback-error" role="alert" hidden></p>' +
+      '<p class="survey-thanks" id="feedback-thanks" hidden>소중한 의견 감사합니다. 팀에게 잘 전달됐어요.</p>' +
+    '</section>'
+  document.body.appendChild(fb)
+
+  var fbText = fb.querySelector('#feedback-text')
+  var fbSend = fb.querySelector('#feedback-submit')
+  var fbErr = fb.querySelector('#feedback-error')
+  var fbThanks = fb.querySelector('#feedback-thanks')
+  var fbBusy = false
+  var lastFocus = null
+
+  function openFeedback() {
+    lastFocus = document.activeElement
+    fb.hidden = false
+    document.body.classList.add('feedback-open-body')
+    if (!fbThanks.hidden) {
+      fbThanks.hidden = true
+      fbText.value = ''
+      fb.querySelector('#feedback-count').textContent = '0'
+      fbSend.textContent = '의견 보내기'
+    }
+    updateFbButton()
+    setTimeout(function () { fbText.focus() }, 50)
+  }
+
+  function closeFeedback() {
+    fb.hidden = true
+    document.body.classList.remove('feedback-open-body')
+    if (lastFocus && lastFocus.focus) lastFocus.focus()
+  }
+
+  function updateFbButton() {
+    fbSend.disabled = fbBusy || !fbText.value.trim() || !fbThanks.hidden
+  }
+
+  fbText.addEventListener('input', function () {
+    fb.querySelector('#feedback-count').textContent = fbText.value.length
+    updateFbButton()
+  })
+
+  function sendFeedback() {
+    var message = fbText.value.trim().slice(0, 1000)
+    if (!message || fbBusy) return
+    fbBusy = true
+    fbErr.hidden = true
+    fbSend.textContent = '보내는 중…'
+    updateFbButton()
+
+    var done = function (error) {
+      fbBusy = false
+      if (error) {
+        fbErr.textContent = error
+        fbErr.hidden = false
+        fbSend.textContent = '의견 보내기'
+      } else {
+        fbThanks.hidden = false
+        fbSend.textContent = '전송 완료'
+      }
+      updateFbButton()
+    }
+
+    if (!ENDPOINT) { done('의견 저장 주소가 설정되지 않았습니다.'); return }
+
+    fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ type: 'feedback', message: message, screen: state.screen }),
+    })
+      .then(function (r) { return r.json() })
+      .then(function (res) { done(res && res.error ? res.error : null) })
+      .catch(function () { done('네트워크 연결을 확인하고 다시 시도해 주세요.') })
+  }
+
+  fb.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-fb]')
+    if (!el) return
+    var a = el.getAttribute('data-fb')
+    if (a === 'close') closeFeedback()
+    else if (a === 'send' && !el.disabled) sendFeedback()
+  })
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !fb.hidden) closeFeedback()
   })
 
   render()
