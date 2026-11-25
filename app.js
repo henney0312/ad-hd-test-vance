@@ -248,6 +248,10 @@
       if (sec) sec.classList.remove('enter')
     }
     window.scrollTo(0, keepScroll)
+    if (s === 'result' && view !== lastView && navigator.vibrate) {
+      // 도장이 찍히는 순간 휴대폰 진동 (지원하는 기기만)
+      setTimeout(function () { try { navigator.vibrate(40) } catch (e) {} }, 640)
+    }
     lastView = view
 
     var ta = document.getElementById('survey-comment')
