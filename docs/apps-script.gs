@@ -13,13 +13,14 @@ var RESPONSE_SHEET = '응답';
 var SUMMARY_SHEET = '통계';
 var FEEDBACK_SHEET = '의견';
 var FEEDBACK_HEADERS = ['제출 시각', '의견', '보낸 화면'];
-var HEADERS = ['제출 시각', 'Q1 진단명 표현 사용 빈도 (1~5)', 'Q2 전문의 진단 필요성 인식 (1~5)', 'Q3 인식 변화 (선택지 1~5)', 'Q4 주관식', 'Q3 기타 직접 작성'];
+var HEADERS = ['제출 시각', 'Q1 진단명 표현 사용 빈도 (1~5)', 'Q2 전문의 진단 필요성 인식 (1~5)', 'Q3 인식 변화 (선택지 1~6)', 'Q4 주관식', 'Q3 기타 직접 작성'];
 var CHANGE_LABELS = [
-  '1. 테스트 전과 같음 · 문제없는 표현',
-  '2. 테스트 전과 같음 · 조심해야 할 표현',
-  '3. 테스트 후 조심하는 쪽으로 바뀜',
-  '4. 테스트 후 문제없는 쪽으로 바뀜',
-  '5. 기타 (직접 작성, F열)',
+  '1. 이전에도 부적절, 지금도 같음',
+  '2. 이전엔 괜찮았으나 이제 신중하게',
+  '3. 부적절하나 습관적으로 계속 사용',
+  '4. 이전에도 지금도 문제없음',
+  '5. 잘 모르겠음',
+  '6. 기타 (직접 작성, F열)',
 ];
 
 /** 처음 한 번 실행: 응답·통계 탭 생성 */
@@ -123,9 +124,9 @@ function summary_() {
   sh.getRange(1, 1, rows.length, 3).setValues(rows);
   sh.getRange('A1').setFontWeight('bold').setFontSize(14);
   sh.getRange('A2:B2').setFontWeight('bold');
-  [q1, q2, q3].forEach(function (s) {
-    sh.getRange(s - 1, 1, 1, 3).setFontWeight('bold').setBackground('#e5f3ff');
-    sh.getRange(s, 3, 5, 1).setNumberFormat('0.0%');
+  [[q1, five.length], [q2, five.length], [q3, CHANGE_LABELS.length]].forEach(function (b) {
+    sh.getRange(b[0] - 1, 1, 1, 3).setFontWeight('bold').setBackground('#e5f3ff');
+    sh.getRange(b[0], 3, b[1], 1).setNumberFormat('0.0%');
   });
   sh.setColumnWidth(1, 380);
   sh.setColumnWidths(2, 2, 90);
@@ -135,19 +136,19 @@ function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
-function isScale_(v) {
-  return typeof v === 'number' && v % 1 === 0 && v >= 1 && v <= 5;
+function isScale_(v, max) {
+  return typeof v === 'number' && v % 1 === 0 && v >= 1 && v <= (max || 5);
 }
 
 // 웹페이지 공개용 집계 (객관식만, 주관식 제외)
 function stats_() {
   var sh = responses_();
   var rows = sh.getLastRow() > 1 ? sh.getRange(2, 2, sh.getLastRow() - 1, 3).getValues() : [];
-  var freq = [0, 0, 0, 0, 0], rec = [0, 0, 0, 0, 0], chg = [0, 0, 0, 0, 0];
+  var freq = [0, 0, 0, 0, 0], rec = [0, 0, 0, 0, 0], chg = [0, 0, 0, 0, 0, 0];
   rows.forEach(function (r) {
     if (isScale_(r[0])) freq[r[0] - 1]++;
     if (isScale_(r[1])) rec[r[1] - 1]++;
-    if (isScale_(r[2])) chg[r[2] - 1]++;
+    if (isScale_(r[2], 6)) chg[r[2] - 1]++;
   });
   return { total: rows.length, frequency: freq, recognition: rec, change: chg, updatedAt: new Date().toISOString() };
 }
@@ -160,11 +161,11 @@ function doPost(e) {
   var v;
   try { v = JSON.parse(e.postData.contents); } catch (err) { return json_({ error: '올바른 설문 응답 형식이 아닙니다.' }); }
   if (v && v.type === 'feedback') return saveFeedback_(v);
-  if (!v || !isScale_(v.frequency) || !isScale_(v.recognition) || !isScale_(v.changeResponse)) {
+  if (!v || !isScale_(v.frequency) || !isScale_(v.recognition) || !isScale_(v.changeResponse, 6)) {
     return json_({ error: '모든 선택 문항에 응답해 주세요.' });
   }
   var comment = safeText_(v.comment);
-  var changeOther = v.changeResponse === 5 ? safeText_(v.changeOther).slice(0, 200) : '';
+  var changeOther = v.changeResponse === 6 ? safeText_(v.changeOther).slice(0, 200) : '';
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {

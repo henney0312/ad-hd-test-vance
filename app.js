@@ -23,10 +23,11 @@
   ]
 
   var changeOptions = [
-    '테스트 전과 같다. 문제없는 표현이라고 생각한다.',
-    '테스트 전과 같다. 조심해야 할 표현이라고 생각한다.',
-    '테스트 후, 조심해서 써야겠다고 생각이 바뀌었다.',
-    '테스트 후, 크게 문제없는 표현이라고 생각이 바뀌었다.',
+    '이전에도 적절하지 않다고 생각했으며, 지금도 같은 생각이다.',
+    '이전에는 괜찮다고 생각했지만, 이제는 신중하게 사용해야 한다고 생각한다.',
+    '적절하지 않다는 생각은 들지만, 앞으로도 습관적으로 사용할 것 같다.',
+    '이전에도 괜찮다고 생각했으며, 지금도 사용하는 데 문제가 없다고 생각한다.',
+    '잘 모르겠다.',
     '기타 (직접 작성)',
   ]
   var CHANGE_OTHER = changeOptions.length - 1 // 마지막 선택지 = 기타(직접 작성)
@@ -121,7 +122,7 @@
       '<div class="stat-card"><div class="stat-title"><span>전문의 진단 필요성 인식</span><b>' + average(stats.recognition) + '<small> / 5</small></b></div>' +
       statBars(stats.recognition, five, true, ends) + '</div>' +
       '<div class="stat-card"><div class="stat-title"><span>테스트 후 인식 변화</span></div>' +
-      statBars(stats.change, ['전과 같음 · 문제없음', '전과 같음 · 조심해야 함', '조심하는 쪽으로 바뀜', '문제없는 쪽으로 바뀜', '기타'], false) + '</div>' +
+      statBars(stats.change, ['계속 부적절', '이제 신중하게', '습관 지속 예상', '계속 문제없음', '잘 모르겠음', '기타'], false) + '</div>' +
       '<p class="stats-update">5초마다 최신 응답으로 자동 업데이트됩니다.</p>' +
       '</section>'
   }
@@ -226,7 +227,7 @@
         '<span class="survey-label">인식 설문</span>' +
         '<div class="survey-question"><h2>1. 평소 ‘나 완전 ADHD인가 봐’라는 말을 얼마나 자주 사용했나요?</h2>' + likert('surveyFrequency', state.surveyFrequency) + '</div>' +
         '<div class="survey-question"><h2>2. ADHD는 전문의의 진단이 필요한 신경발달장애라고 생각하나요?</h2>' + likert('surveyRecognition', state.surveyRecognition) + '</div>' +
-        '<div class="survey-question"><h2>3. 이번 테스트에 참여한 후, 일상적인 실수나 집중력 저하를 ‘ADHD 같다’고 표현하는 것에 대해 어떻게 생각하나요?</h2>' +
+        '<div class="survey-question"><h2>3. 이번 테스트에 참여한 후, 일상적인 실수나 집중력 저하를 ADHD라고 표현하는 것에 대한 생각이 어떻게 달라졌나요?</h2>' +
           '<div class="survey-options">' + changeOptions.map(function (item, i) {
             return '<button class="' + (state.surveyChange === i ? 'selected' : '') + '" data-action="change" data-value="' + i + '" aria-pressed="' + (state.surveyChange === i) + '"' + (state.submitted ? ' disabled' : '') + '><i>' + (i + 1) + '</i>' + esc(item) + '<b>✓</b></button>'
           }).join('') + '</div>' +
