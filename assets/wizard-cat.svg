@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <filter id="pencil" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2"/>
+    </filter>
+  </defs>
+  <g filter="url(#pencil)" stroke="#262626" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- 바닥 그림자 선 -->
+    <path d="M132 372 C 170 366, 250 366, 300 372" stroke-width="2" opacity=".45"/>
+    <path d="M150 378 C 190 374, 240 374, 280 378" stroke-width="1.6" opacity=".3"/>
+
+    <!-- 마법사 지팡이 -->
+    <path d="M312 150 C 314 210, 316 290, 318 368" stroke-width="5"/>
+    <path d="M312 150 C 306 136, 300 126, 304 114 C 310 100, 330 102, 330 118 C 330 128, 322 134, 314 132" stroke-width="3.4"/>
+    <circle cx="318" cy="114" r="5" fill="#262626"/>
+
+    <!-- 몸통·발 -->
+    <path d="M168 300 C 156 320, 150 346, 160 366 C 176 372, 248 372, 262 366 C 272 346, 266 318, 254 300" fill="#fff" stroke-width="3.2"/>
+    <ellipse cx="176" cy="370" rx="22" ry="11" fill="#fff" stroke-width="3.2"/>
+    <ellipse cx="248" cy="370" rx="22" ry="11" fill="#fff" stroke-width="3.2"/>
+    <!-- 팔 -->
+    <path d="M254 300 C 276 300, 294 290, 306 270" fill="#fff" stroke-width="3.2"/>
+    <path d="M300 262 C 312 258, 322 266, 316 280 C 310 288, 300 284, 300 276" fill="#fff" stroke-width="3"/>
+    <path d="M168 300 C 150 304, 138 318, 140 336 C 146 340, 154 338, 158 332" fill="#fff" stroke-width="3.2"/>
+
+    <!-- 수염 -->
+    <path d="M150 238 C 140 270, 150 300, 170 324 C 180 336, 196 350, 211 362 C 226 350, 242 336, 252 324 C 272 300, 282 270, 272 238 C 260 250, 240 254, 211 254 C 182 254, 162 250, 150 238 Z" fill="#fff" stroke-width="3.4"/>
+    <path d="M176 272 C 178 292, 186 312, 196 330" stroke-width="1.8" opacity=".55"/>
+    <path d="M211 276 C 210 300, 210 322, 211 344" stroke-width="1.8" opacity=".55"/>
+    <path d="M246 272 C 244 292, 236 312, 226 330" stroke-width="1.8" opacity=".55"/>
+    <path d="M160 300 C 166 312, 172 320, 178 326" stroke-width="1.6" opacity=".45"/>
+    <path d="M262 300 C 256 312, 250 320, 244 326" stroke-width="1.6" opacity=".45"/>
+
+    <!-- 얼굴 -->
+    <path d="M158 206 C 158 230, 180 246, 211 246 C 242 246, 264 230, 264 206" fill="#fff" stroke-width="3.2"/>
+    <path d="M150 210 C 140 206, 138 222, 150 226" stroke-width="3"/>
+    <path d="M272 210 C 282 206, 284 222, 272 226" stroke-width="3"/>
+    <ellipse cx="190" cy="214" rx="3.8" ry="5" fill="#262626"/>
+    <ellipse cx="232" cy="214" rx="3.8" ry="5" fill="#262626"/>
+    <path d="M180 202 C 186 198, 194 198, 198 202" stroke-width="2.6"/>
+    <path d="M224 202 C 228 198, 236 198, 242 202" stroke-width="2.6"/>
+    <!-- 콧수염 -->
+    <path d="M211 236 C 200 246, 182 248, 170 238 C 180 252, 200 254, 211 244 C 222 254, 242 252, 252 238 C 240 248, 222 246, 211 236" fill="#fff" stroke-width="3"/>
+    <circle cx="211" cy="230" r="13" fill="#fff" stroke-width="3.2"/>
+
+    <!-- 모자 -->
+    <g transform="translate(0,-16)">
+    <path d="M150 196 C 160 150, 178 104, 206 70 C 222 50, 246 38, 268 44 C 284 48, 296 62, 300 78 C 288 70, 274 70, 266 80 C 258 92, 264 120, 270 150 C 274 168, 274 184, 272 196" fill="#fff" stroke-width="3.4"/>
+    <circle cx="304" cy="84" r="14" fill="#fff" stroke-width="3.2"/>
+    <path d="M142 196 C 170 184, 250 180, 282 194 C 286 204, 282 212, 276 214 C 250 204, 172 206, 146 216 C 138 214, 136 204, 142 196 Z" fill="#fff" stroke-width="3.4"/>
+    <!-- 모자 별 -->
+    <path d="M214 108 l5 11 12 1 -9 8 3 12 -11 -6 -10 7 2 -12 -9 -8 12 -2 z" stroke-width="2.6"/>
+    <path d="M186 158 l3 7 8 1 -6 5 2 8 -7 -4 -7 4 2 -8 -6 -5 8 -1 z" stroke-width="2.2"/>
+    <path d="M246 148 l3 7 8 1 -6 5 2 8 -7 -4 -7 4 2 -8 -6 -5 8 -1 z" stroke-width="2.2"/>
+
+    </g>
+    <!-- ===== 마법 고양이 ===== -->
+    <!-- 꼬리 -->
+    <path d="M118 352 C 140 356, 150 340, 142 326 C 136 316, 124 320, 128 330" stroke-width="3"/>
+    <!-- 몸 -->
+    <path d="M62 360 C 54 330, 60 300, 78 290 C 96 282, 118 292, 124 314 C 130 336, 124 356, 114 362 C 96 366, 76 366, 62 360 Z" fill="#fff" stroke-width="3"/>
+    <path d="M82 362 C 82 350, 86 342, 92 340" stroke-width="2.4"/>
+    <path d="M104 362 C 104 350, 102 342, 98 340" stroke-width="2.4"/>
+    <!-- 지팡이 든 앞발 -->
+    <path d="M116 304 C 126 290, 134 276, 140 262" fill="#fff" stroke-width="3"/>
+    <path d="M136 268 C 142 260, 150 262, 148 272 C 146 278, 138 278, 136 272" fill="#fff" stroke-width="2.6"/>
+    <path d="M144 266 L 152 206" stroke-width="3"/>
+    <path d="M150 170 l6 13 14 1 -11 9 4 14 -13 -7 -12 8 3 -14 -11 -9 14 -2 z" fill="#fff" stroke-width="2.8"/>
+    <!-- 머리 -->
+    <path d="M60 272 C 56 252, 68 236, 90 236 C 112 236, 124 252, 120 272 C 116 288, 102 294, 90 294 C 76 294, 64 288, 60 272 Z" fill="#fff" stroke-width="3"/>
+    <path d="M64 254 L 62 232 L 78 242" fill="#fff" stroke-width="3"/>
+    <path d="M114 252 L 118 230 L 102 241" fill="#fff" stroke-width="3"/>
+    <circle cx="80" cy="266" r="3.2" fill="#262626"/>
+    <circle cx="102" cy="266" r="3.2" fill="#262626"/>
+    <path d="M86 276 C 89 280, 92 280, 94 276 C 96 280, 99 280, 102 276" stroke-width="2.2"/>
+    <path d="M60 272 L 40 268 M60 278 L 42 282 M120 272 L 138 268 M120 278 L 136 282" stroke-width="1.8"/>
+    <!-- 고양이 마법사 모자 -->
+    <path d="M58 244 C 70 220, 84 186, 96 160 C 104 176, 114 206, 124 240 C 104 236, 80 236, 58 244 Z" fill="#fff" stroke-width="3"/>
+    <path d="M52 246 C 76 232, 108 232, 130 242 C 120 250, 64 254, 52 246 Z" fill="#fff" stroke-width="3"/>
+    <path d="M88 196 l3 6 7 1 -5 4 2 7 -6 -4 -6 4 1 -7 -5 -4 7 -1 z" stroke-width="2"/>
+
+    <!-- 반짝이 -->
+    <path d="M140 168 L 134 158 M 166 172 L 176 164 M 128 186 L 118 184" stroke-width="2.4"/>
+    <path d="M40 182 C 41 190, 44 193, 52 194 C 44 195, 41 198, 40 206 C 39 198, 36 195, 28 194 C 36 193, 39 190, 40 182 Z" stroke-width="2.2"/>
+    <path d="M346 214 C 347 220, 349 222, 355 223 C 349 224, 347 226, 346 232 C 345 226, 343 224, 337 223 C 343 222, 345 220, 346 214 Z" stroke-width="2"/>
+  </g>
+</svg>

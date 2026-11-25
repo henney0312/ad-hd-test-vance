@@ -47,6 +47,7 @@
 
   var root = document.getElementById('root')
   var lastView = ''
+  var participants = 0
   var loadingTimer = null
   var statsTimer = null
 
@@ -59,7 +60,10 @@
   }
 
   function cat(mood) {
-    return '<img class="cat cat-' + (mood || 'curious') + '" src="assets/me-cat.png" width="288" height="317" alt="ME!라고 적힌 손그림 고양이 얼굴" />'
+    if (mood === 'thinking') {
+      return '<img class="cat cat-thinking" src="assets/magic-cat.svg" width="180" height="240" alt="마법사 모자를 쓰고 별 지팡이를 든 고양이" />'
+    }
+    return '<img class="cat cat-' + (mood || 'curious') + '" src="assets/wizard-cat.svg" width="400" height="400" alt="별무늬 모자를 쓴 마법사와 지팡이를 든 마법 고양이" />'
   }
 
   var paw =
@@ -124,11 +128,15 @@
 
   function viewIntro() {
     return '<section class="intro enter">' +
-      '<div class="tag">1분 · 5문항</div>' + cat() +
-      '<div class="intro-copy"><p>온라인으로 알아보는 나의 일상</p>' +
-      '<h1><em>ADHD</em><br />자가진단 테스트</h1>' +
-      '<span>일상 속 내 모습을 떠올리며<br />솔직하게 답해 주세요.</span></div>' +
-      '<button class="main-button" data-action="start">테스트 시작하기 <b>→</b></button>' +
+      '<div class="intro-art">' + cat() + '</div>' +
+      '<div class="intro-side">' +
+        '<div class="intro-copy"><p>온라인으로 알아보는 나의 일상</p>' +
+        '<h1><em>ADHD</em><br />자가진단 테스트</h1>' +
+        '<span>일상 속 내 모습을 떠올리며<br />솔직하게 답해 주세요.</span></div>' +
+        '<ul class="intro-meta"><li>5문항</li><li>약 1분</li><li>익명 참여</li></ul>' +
+        '<button class="main-button" data-action="start">테스트 시작하기 <b>→</b></button>' +
+        (participants > 0 ? '<p class="intro-count">지금까지 <b>' + participants.toLocaleString('ko-KR') + '명</b>이 응답했어요</p>' : '') +
+      '</div>' +
       '</section>'
   }
 
@@ -150,7 +158,7 @@
     return '<section class="loading enter">' +
       '<div class="loading-cat">' + cat('thinking') + '</div>' +
       '<div class="dots"><i></i><i></i><i></i></div>' +
-      '<h2>고양이가 답변을<br />살펴보고 있어요</h2>' +
+      '<h2>마법 고양이가 답변을<br />살펴보고 있어요</h2>' +
       '<p>잠시만 기다려 주세요.</p>' +
       '</section>'
   }
@@ -489,4 +497,17 @@
   })
 
   render()
+
+  // 첫 화면 참여자 수 표시
+  if (ENDPOINT) {
+    fetch(ENDPOINT, { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null })
+      .then(function (d) {
+        if (d && typeof d.total === 'number') {
+          participants = d.total
+          if (state.screen === 'intro') render()
+        }
+      })
+      .catch(function () {})
+  }
 })()
