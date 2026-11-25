@@ -232,10 +232,89 @@
       '</section>'
   }
 
+  // 효과음: 파일 없이 Web Audio로 직접 합성 (저작권 걱정 없음)
+  // 브라우저는 사용자가 누르기 전엔 소리를 막으므로, 첫 클릭 때 오디오를 깨워 둠
+  var actx = null
+  function audio() {
+    if (!actx) {
+      var AC = window.AudioContext || window.webkitAudioContext
+      if (!AC) return null
+      try { actx = new AC() } catch (e) { return null }
+    }
+    if (actx.state === 'suspended') actx.resume()
+    return actx
+  }
+  document.addEventListener('pointerdown', function () { audio() }, { passive: true })
+  function noiseBuf(ctx, sec) {
+    var b = ctx.createBuffer(1, Math.floor(ctx.sampleRate * sec), ctx.sampleRate), d = b.getChannelData(0)
+    for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1
+    return b
+  }
+  function env(ctx, g, t, peak, a, r) {
+    g.gain.setValueAtTime(0.0001, t)
+    g.gain.exponentialRampToValueAtTime(peak, t + a)
+    g.gain.exponentialRampToValueAtTime(0.0001, t + a + r)
+  }
+  var sfx = {
+    swish: function (ctx, t) { // 숑: 바람 소리가 위로 쓸려 올라감
+      var n = ctx.createBufferSource(); n.buffer = noiseBuf(ctx, .35)
+      var f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 1.2
+      f.frequency.setValueAtTime(500, t); f.frequency.exponentialRampToValueAtTime(3800, t + .25)
+      var g = ctx.createGain(); env(ctx, g, t, .5, .08, .22)
+      n.connect(f); f.connect(g); g.connect(ctx.destination); n.start(t); n.stop(t + .35)
+    },
+    sparkle: function (ctx, t) { // 뾰로롱: 높은 음이 차르르 올라감
+      [1568, 2093, 2637, 3136, 4186].forEach(function (hz, i) {
+        var o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = hz
+        var g = ctx.createGain(); env(ctx, g, t + i * .055, .16, .01, .3)
+        o.connect(g); g.connect(ctx.destination); o.start(t + i * .055); o.stop(t + i * .055 + .35)
+      })
+    },
+    zap: function (ctx, t) { // 빔 발사: 피융
+      var o = ctx.createOscillator(); o.type = 'sawtooth'
+      o.frequency.setValueAtTime(1800, t); o.frequency.exponentialRampToValueAtTime(220, t + .4)
+      var f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 2400
+      var g = ctx.createGain(); env(ctx, g, t, .12, .02, .38)
+      o.connect(f); f.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + .45)
+    },
+    siren: function (ctx, t) { // 왜용왜용: 경고 사이렌 두 번
+      var o = ctx.createOscillator(); o.type = 'square'
+      var dur = 1.4, cycle = .7
+      o.frequency.setValueAtTime(620, t)
+      for (var k = 0; k < 2; k++) {
+        o.frequency.linearRampToValueAtTime(1250, t + k * cycle + cycle * .5)
+        o.frequency.linearRampToValueAtTime(620, t + (k + 1) * cycle)
+      }
+      var f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 2200
+      var g = ctx.createGain()
+      g.gain.setValueAtTime(0.0001, t)
+      g.gain.exponentialRampToValueAtTime(.1, t + .04)
+      g.gain.setValueAtTime(.1, t + dur - .15)
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
+      o.connect(f); f.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + dur + .05)
+    },
+    stamp: function (ctx, t) { // 쾅: 묵직한 저음 + 탁 치는 소리
+      var o = ctx.createOscillator(); o.type = 'sine'
+      o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(42, t + .35)
+      var g = ctx.createGain(); env(ctx, g, t, .9, .005, .45)
+      o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + .5)
+      var n = ctx.createBufferSource(); n.buffer = noiseBuf(ctx, .2)
+      var f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1400
+      var g2 = ctx.createGain(); env(ctx, g2, t, .7, .003, .14)
+      n.connect(f); f.connect(g2); g2.connect(ctx.destination); n.start(t); n.stop(t + .2)
+    }
+  }
+  function play(name, delayMs) {
+    var ctx = audio()
+    if (!ctx || ctx.state !== 'running') return
+    try { sfx[name](ctx, ctx.currentTime + delayMs / 1000) } catch (e) {}
+  }
+
   // 결과 화면 연출: 별 끝에서 뾰로롱 → 빨간 빛이 판정 불가 자리로 발사 → 쾅(진동)
   function playVerdictMagic() {
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduce) return
+    play('swish', 680); play('sparkle', 900); play('zap', 960); play('stamp', 1500); play('siren', 1560)
     setTimeout(function () {
       var tip = root.querySelector('.wand-tip'), badge = root.querySelector('.result-badge')
       if (!tip || !badge || !tip.animate) return
