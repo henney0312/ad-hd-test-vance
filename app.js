@@ -599,7 +599,7 @@
       '<span class="header-paw">' + paw + '</span>' +
       '<h2 id="feedback-title">우리 프로젝트에<br />의견을 남겨주세요!</h2>' +
       '<p class="feedback-desc">테스트에 대한 생각, 아쉬운 점, 응원의 말 모두 좋아요. 익명으로 팀에게만 전달돼요.</p>' +
-      '<textarea id="feedback-text" maxlength="1000" rows="6" placeholder="적어주시면 저희 팀에게 큰 힘이 됩니다."></textarea>' +
+      '<textarea id="feedback-text" maxlength="1000" rows="6" placeholder="자유롭게 작성해 주세요."></textarea>' +
       '<div class="feedback-count"><span id="feedback-count">0</span> / 1000</div>' +
       '<button class="survey-submit" id="feedback-submit" data-fb="send" disabled>의견 보내기</button>' +
       '<p class="survey-error" id="feedback-error" role="alert" hidden></p>' +
